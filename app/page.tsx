@@ -2,9 +2,9 @@
 
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import { motion } from 'framer-motion'
-import { Shield, ArrowRight, Terminal, CheckCircle, AlertTriangle, Copy, Check } from 'lucide-react'
-import { useState } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { ArrowRight, Terminal, CheckCircle, AlertTriangle, Shield, Copy, Check, Zap, GitBranch, Eye, Lock } from 'lucide-react'
+import { useState, useRef } from 'react'
 
 const agents = [
   { name: 'recon', desc: 'Endpoints, tech stack, source maps, exposed configs' },
@@ -32,6 +32,28 @@ const prompts = [
   },
 ]
 
+const comparisonData = [
+  ['Symmetric CRUD (IDOR)', false, true],
+  ['Missing Row Level Security', false, true],
+  ['Client-side authority checks', false, true],
+  ['Auth/authz conflation chains', false, true],
+  ['Over-permissive defaults', false, true],
+  ['BaaS direct database bypass', false, true],
+  ['Trust boundary inversions', false, true],
+]
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08 }
+  }
+}
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } }
+}
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
   const handleCopy = () => {
@@ -40,52 +62,89 @@ function CopyButton({ text }: { text: string }) {
     setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <button onClick={handleCopy} className="text-slate-500 hover:text-cyan-400 transition-colors" title="Copy prompt">
+    <button onClick={handleCopy} className="text-slate-500 hover:text-cyan-400 transition-colors cursor-pointer" title="Copy prompt">
       {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
     </button>
   )
 }
 
 export default function Home() {
+  const heroRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  })
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80])
+
   return (
     <main className="min-h-screen bg-[#030712]">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative min-h-screen pt-24 pb-16 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-screen pt-24 pb-16 overflow-hidden">
         <div className="absolute inset-0 grid-overlay" />
-        <div className="absolute top-1/4 -right-48 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/4 -left-48 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px]" />
+
+        {/* Ambient orbs — subtle depth */}
+        <div className="absolute top-1/3 -right-64 w-[500px] h-[500px] bg-blue-500/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 -left-64 w-[500px] h-[500px] bg-cyan-500/[0.04] rounded-full blur-[120px]" />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="badge">
+          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[80vh]">
+
+            {/* Left Content */}
+            <motion.div style={{ opacity: heroOpacity, y: heroY }} className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="badge"
+              >
                 <div className="status-online" />
-                <span>Open Source Security Scanner</span>
+                <span>Open Source — MIT Licensed</span>
               </motion.div>
 
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-5xl lg:text-6xl font-display font-bold leading-tight">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-5xl lg:text-[3.5rem] font-display font-bold leading-[1.1] tracking-tight"
+              >
                 The first security scanner{' '}
                 <span className="text-cyan-400 neon-text">built for AI-generated code</span>.
               </motion.h1>
 
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-lg text-slate-400 max-w-xl leading-relaxed">
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="text-lg text-slate-400 max-w-xl leading-relaxed"
+              >
                 Guardiant detects vulnerabilities unique to Cursor, Copilot, Claude Code, and v0.dev.
                 The ones traditional scanners were never designed to find.
               </motion.p>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-wrap gap-4">
-                <a href="https://github.com/paarthbhatt/Guardiant" target="_blank" rel="noopener noreferrer" className="btn-primary">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="flex flex-wrap gap-4"
+              >
+                <a href="https://github.com/paarthbhatt/Guardiant" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center">
                   View on GitHub
-                  <ArrowRight className="w-4 h-4 ml-2 inline" />
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </a>
-                <a href="#agent-prompts" className="btn-secondary">
+                <a href="#agent-prompts" className="btn-secondary inline-flex items-center">
                   Copy a Prompt
                 </a>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="grid grid-cols-3 gap-8 pt-8 border-t border-[rgba(59,130,246,0.15)]">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="grid grid-cols-3 gap-8 pt-8 border-t border-[rgba(59,130,246,0.1)]"
+              >
                 <div>
                   <div className="text-3xl font-display font-bold text-cyan-400 neon-text">8</div>
                   <div className="text-sm text-slate-500 mt-1">AI Agents</div>
@@ -101,9 +160,14 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* Terminal */}
-            <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="relative">
-              <div className="terminal relative">
+            {/* Right — Terminal with parallax */}
+            <motion.div
+              initial={{ opacity: 0, x: 30, rotateY: -5 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              transition={{ duration: 0.7, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative perspective-container"
+            >
+              <div className="terminal relative transform-gpu">
                 <div className="terminal-header">
                   <div className="terminal-dot bg-red-500" />
                   <div className="terminal-dot bg-yellow-500" />
@@ -136,7 +200,7 @@ export default function Home() {
                       <span>CVC: 1 vulnerability chain found</span>
                     </div>
                   </motion.div>
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }} className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }} className="mt-6 p-4 bg-red-500/[0.08] border border-red-500/20 rounded-lg">
                     <div className="flex items-center gap-2 text-red-400 font-semibold">
                       <AlertTriangle className="w-5 h-5" />
                       <span>CRITICAL: Exploit chain detected</span>
@@ -150,10 +214,10 @@ export default function Home() {
                     <span className="cursor text-cyan-400">█</span>
                   </motion.div>
                 </div>
-                <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-cyan-400/50" />
-                <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-cyan-400/50" />
-                <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-cyan-400/50" />
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-cyan-400/50" />
+                <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-cyan-400/40" />
+                <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-cyan-400/40" />
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-cyan-400/40" />
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-cyan-400/40" />
               </div>
             </motion.div>
           </div>
@@ -161,40 +225,46 @@ export default function Home() {
       </section>
 
       {/* Why Guardiant */}
-      <section className="py-24 border-t border-[rgba(59,130,246,0.15)]">
+      <section className="py-32 border-t border-[rgba(59,130,246,0.08)]">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <div className="badge mb-6">WHY GUARDIANT</div>
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
-              Traditional scanners find CVEs. <span className="text-cyan-400 neon-text">We find structural flaws.</span>
-            </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
-              AI coding assistants introduce predictable vulnerability patterns. Guardiant was built to detect them.
-            </p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="text-center mb-20"
+          >
+            <motion.div variants={fadeInUp} className="badge mb-6">WHY GUARDIANT</motion.div>
+            <motion.h2 variants={fadeInUp} className="text-4xl lg:text-5xl font-display font-bold text-white mb-5 tracking-tight">
+              Traditional scanners find CVEs.{' '}
+              <span className="text-cyan-400 neon-text">We find structural flaws.</span>
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-slate-400 max-w-2xl mx-auto text-lg">
+              AI coding assistants introduce predictable vulnerability patterns.
+              Guardiant was built to detect them.
+            </motion.p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="card p-8 max-w-4xl mx-auto overflow-x-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+            className="card p-8 lg:p-10 max-w-4xl mx-auto overflow-x-auto"
+          >
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[rgba(59,130,246,0.15)]">
-                  <th className="text-left py-4 text-slate-500 font-mono text-sm">VULNERABILITY PATTERN</th>
-                  <th className="text-center py-4 text-slate-500 font-mono text-sm">SNYK / SONARQUBE</th>
-                  <th className="text-center py-4 text-cyan-400 font-mono text-sm">GUARDIANT</th>
+                <tr className="border-b border-[rgba(59,130,246,0.12)]">
+                  <th className="text-left py-4 text-slate-500 font-mono text-xs uppercase tracking-wider">Vulnerability Pattern</th>
+                  <th className="text-center py-4 text-slate-500 font-mono text-xs uppercase tracking-wider">Legacy Scanners</th>
+                  <th className="text-center py-4 text-cyan-400 font-mono text-xs uppercase tracking-wider">Guardiant</th>
                 </tr>
               </thead>
               <tbody>
-                {[
-                  ['Symmetric CRUD (IDOR)', false, true],
-                  ['Missing Row Level Security', false, true],
-                  ['Client-side authority checks', false, true],
-                  ['Auth/authz conflation chains', false, true],
-                  ['Over-permissive defaults', false, true],
-                  ['BaaS direct database bypass', false, true],
-                  ['Trust boundary inversions', false, true],
-                ].map(([pattern, legacy, guardiant]) => (
-                  <tr key={pattern as string} className="border-b border-[rgba(59,130,246,0.08)]">
+                {comparisonData.map(([pattern, legacy, guardiant]) => (
+                  <tr key={pattern as string} className="border-b border-[rgba(59,130,246,0.06)] last:border-0">
                     <td className="py-4 text-slate-300 font-mono text-sm">{pattern}</td>
-                    <td className="text-center py-4 text-red-400 font-mono text-sm">{legacy ? 'Yes' : 'No'}</td>
+                    <td className="text-center py-4 text-red-400/80 font-mono text-sm">{legacy ? 'Yes' : 'No'}</td>
                     <td className="text-center py-4 text-green-400 font-mono text-sm">{guardiant ? 'Yes' : 'No'}</td>
                   </tr>
                 ))}
@@ -205,39 +275,65 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-24 border-t border-[rgba(59,130,246,0.15)]">
+      <section className="py-32 border-t border-[rgba(59,130,246,0.08)]">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <div className="badge mb-6">HOW IT WORKS</div>
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
-              5-phase engine. <span className="text-cyan-400 neon-text">8 specialized agents.</span>
-            </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
-              Recon maps the attack surface. The agent swarm analyzes in parallel. Three research frameworks find what others miss.
-            </p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="text-center mb-20"
+          >
+            <motion.div variants={fadeInUp} className="badge mb-6">HOW IT WORKS</motion.div>
+            <motion.h2 variants={fadeInUp} className="text-4xl lg:text-5xl font-display font-bold text-white mb-5 tracking-tight">
+              5-phase engine.{' '}
+              <span className="text-cyan-400 neon-text">8 specialized agents.</span>
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-slate-400 max-w-2xl mx-auto text-lg">
+              Recon maps the attack surface. The agent swarm analyzes in parallel.
+              Three research frameworks find what others miss.
+            </motion.p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {/* Phases */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-20"
+          >
             {[
-              { phase: '01', title: 'Recon', desc: 'Discover endpoints, tech stack, auth mechanisms, exposed configs.' },
-              { phase: '02', title: 'Agent Swarm', desc: '8 specialized agents analyze different vulnerability classes in parallel.' },
-              { phase: '03', title: 'CVC Analysis', desc: 'Chain related findings into compound vulnerability attack paths.' },
-              { phase: '04', title: 'TIEF Detection', desc: 'Find trust inversions where code trusts the wrong boundary.' },
-            ].map((item, i) => (
-              <motion.div key={item.phase} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="card p-6">
-                <div className="text-xs font-mono text-cyan-400 mb-2">PHASE {item.phase}</div>
+              { phase: '01', title: 'Recon', icon: Eye, desc: 'Discover endpoints, tech stack, auth mechanisms, exposed configs.' },
+              { phase: '02', title: 'Agent Swarm', icon: Zap, desc: '8 specialized agents analyze different vulnerability classes in parallel.' },
+              { phase: '03', title: 'CVC Analysis', icon: GitBranch, desc: 'Chain related findings into compound vulnerability attack paths.' },
+              { phase: '04', title: 'TIEF Detection', icon: Shield, desc: 'Find trust inversions where code trusts the wrong boundary.' },
+            ].map((item) => (
+              <motion.div key={item.phase} variants={fadeInUp} className="card p-7 group hover:border-cyan-400/20 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-cyan-400/[0.08] group-hover:bg-cyan-400/[0.12] transition-colors">
+                    <item.icon className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div className="text-xs font-mono text-cyan-400">PHASE {item.phase}</div>
+                </div>
                 <h3 className="text-lg font-display font-bold text-white mb-2">{item.title}</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
-          {/* Agent List */}
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-16 max-w-4xl mx-auto">
-            <h3 className="text-xl font-display font-bold text-white mb-6 text-center">The 8 Agents</h3>
+          {/* Agents */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto"
+          >
+            <h3 className="text-xl font-display font-bold text-white mb-8 text-center">The 8 Agents</h3>
             <div className="grid sm:grid-cols-2 gap-3">
               {agents.map((agent) => (
-                <div key={agent.name} className="flex items-start gap-3 p-4 bg-[#111827] rounded border border-[rgba(59,130,246,0.1)]">
+                <div key={agent.name} className="flex items-start gap-3 p-4 bg-[#111827]/60 rounded-lg border border-[rgba(59,130,246,0.08)] hover:border-cyan-400/20 transition-colors">
                   <Terminal className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
                   <div>
                     <span className="font-mono text-sm text-cyan-400">{agent.name}</span>
@@ -251,21 +347,35 @@ export default function Home() {
       </section>
 
       {/* Agent Prompt Library */}
-      <section id="agent-prompts" className="py-24 border-t border-[rgba(59,130,246,0.15)]">
+      <section id="agent-prompts" className="py-32 border-t border-[rgba(59,130,246,0.08)]">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <div className="badge mb-6">AGENT PROMPT LIBRARY</div>
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
-              Copy a prompt. <span className="text-cyan-400 neon-text">Paste into your coding agent.</span>
-            </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
-              Works with Cursor, GitHub Copilot, Claude Code, Windsurf, and any coding agent that accepts natural language instructions.
-            </p>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="text-center mb-20"
+          >
+            <motion.div variants={fadeInUp} className="badge mb-6">AGENT PROMPT LIBRARY</motion.div>
+            <motion.h2 variants={fadeInUp} className="text-4xl lg:text-5xl font-display font-bold text-white mb-5 tracking-tight">
+              Copy a prompt.{' '}
+              <span className="text-cyan-400 neon-text">Paste into your coding agent.</span>
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-slate-400 max-w-2xl mx-auto text-lg">
+              Works with Cursor, GitHub Copilot, Claude Code, Windsurf, and any coding agent
+              that accepts natural language instructions.
+            </motion.p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {prompts.map((item, i) => (
-              <motion.div key={item.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="terminal">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          >
+            {prompts.map((item) => (
+              <motion.div key={item.title} variants={fadeInUp} className="terminal">
                 <div className="terminal-header">
                   <div className="terminal-dot bg-red-500" />
                   <div className="terminal-dot bg-yellow-500" />
@@ -280,21 +390,34 @@ export default function Home() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Quick Start */}
-      <section className="py-24 border-t border-[rgba(59,130,246,0.15)]">
+      <section className="py-32 border-t border-[rgba(59,130,246,0.08)]">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <div className="badge mb-6">QUICK START</div>
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
-              Running in <span className="text-cyan-400 neon-text">3 commands</span>.
-            </h2>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="text-center mb-16"
+          >
+            <motion.div variants={fadeInUp} className="badge mb-6">QUICK START</motion.div>
+            <motion.h2 variants={fadeInUp} className="text-4xl lg:text-5xl font-display font-bold text-white tracking-tight">
+              Running in{' '}
+              <span className="text-cyan-400 neon-text">3 commands</span>.
+            </motion.h2>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="terminal max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="terminal max-w-3xl mx-auto"
+          >
             <div className="terminal-header">
               <div className="terminal-dot bg-red-500" />
               <div className="terminal-dot bg-yellow-500" />
@@ -308,7 +431,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-green-400">$</span>
-                <span className="text-slate-300">cd Guardiant && pnpm install && pnpm build</span>
+                <span className="text-slate-300">cd Guardiant &amp;&amp; pnpm install &amp;&amp; pnpm build</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-green-400">$</span>
@@ -321,8 +444,14 @@ export default function Home() {
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-12 text-center">
-            <a href="https://github.com/paarthbhatt/Guardiant#installation" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 font-mono text-sm transition-colors">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="mt-12 text-center"
+          >
+            <a href="https://github.com/paarthbhatt/Guardiant#installation" target="_blank" rel="noopener noreferrer" className="text-cyan-400/80 hover:text-cyan-400 font-mono text-sm transition-colors">
               View full installation instructions for Windows, macOS, Linux, and Docker →
             </a>
           </motion.div>
@@ -330,27 +459,35 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 border-t border-[rgba(59,130,246,0.15)]">
+      <section className="py-32 border-t border-[rgba(59,130,246,0.08)]">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="card-glow p-12 text-center max-w-4xl mx-auto relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-cyan-400/50" />
-            <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-cyan-400/50" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-cyan-400/50" />
-            <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-cyan-400/50" />
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="card-glow p-14 text-center max-w-4xl mx-auto relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-cyan-400/30" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-cyan-400/30" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-cyan-400/30" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-cyan-400/30" />
 
-            <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-6" />
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
-              Open source. <span className="text-cyan-400 neon-text">MIT licensed.</span>
+            <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-6 opacity-80" />
+            <h2 className="text-4xl lg:text-5xl font-display font-bold text-white mb-5 tracking-tight">
+              Open source.{' '}
+              <span className="text-cyan-400 neon-text">MIT licensed.</span>
             </h2>
-            <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto">
-              Guardiant is free to use, modify, and distribute. Star the repo if you find it useful.
+            <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">
+              Guardiant is free to use, modify, and distribute.
+              Star the repo if you find it useful.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="https://github.com/paarthbhatt/Guardiant" target="_blank" rel="noopener noreferrer" className="btn-primary">
+              <a href="https://github.com/paarthbhatt/Guardiant" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center">
                 Star on GitHub
-                <ArrowRight className="w-4 h-4 ml-2 inline" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </a>
-              <a href="https://github.com/paarthbhatt/Guardiant/issues" target="_blank" rel="noopener noreferrer" className="btn-secondary">
+              <a href="https://github.com/paarthbhatt/Guardiant/issues" target="_blank" rel="noopener noreferrer" className="btn-secondary inline-flex items-center">
                 Report an Issue
               </a>
             </div>

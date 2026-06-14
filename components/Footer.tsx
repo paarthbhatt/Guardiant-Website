@@ -37,6 +37,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li><Link href="/product" className="text-sm text-slate-400 hover:text-white transition-colors">Features</Link></li>
+              <li><Link href="/research" className="text-sm text-slate-400 hover:text-white transition-colors">Research</Link></li>
               <li><Link href="/use-cases" className="text-sm text-slate-400 hover:text-white transition-colors">Use Cases</Link></li>
               <li><a href="https://github.com/paarthbhatt/Guardiant" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-400 hover:text-white transition-colors">GitHub</a></li>
             </ul>

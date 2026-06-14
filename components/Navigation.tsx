@@ -9,6 +9,7 @@ export default function Navigation() {
 
   const navLinks = [
     { name: 'Product', href: '/product' },
+    { name: 'Research', href: '/research' },
     { name: 'Use Cases', href: '/use-cases' },
   ]
 
